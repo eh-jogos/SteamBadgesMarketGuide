@@ -1,0 +1,117 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://main_app/tab_scenes/games_list/GamesListTextEdit.gd" type="Script" id=1]
+[ext_resource path="res://main_app/tab_scenes/games_list/GamesList.gd" type="Script" id=2]
+
+[node name="GamesList" type="MarginContainer"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_constants/margin_right = 30
+custom_constants/margin_top = 20
+custom_constants/margin_left = 30
+custom_constants/margin_bottom = 30
+script = ExtResource( 2 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Content" type="VBoxContainer" parent="."]
+margin_left = 30.0
+margin_top = 20.0
+margin_right = 994.0
+margin_bottom = 570.0
+custom_constants/separation = 10
+
+[node name="Buttons" type="HBoxContainer" parent="Content"]
+margin_right = 964.0
+margin_bottom = 20.0
+custom_constants/separation = 15
+
+[node name="UpdateAll" type="Button" parent="Content/Buttons"]
+margin_right = 474.0
+margin_bottom = 20.0
+size_flags_horizontal = 3
+text = "Update All Games Data"
+
+[node name="RefreshLists" type="Button" parent="Content/Buttons"]
+margin_left = 489.0
+margin_right = 964.0
+margin_bottom = 20.0
+size_flags_horizontal = 3
+text = "Refresh Lists"
+
+[node name="Columns" type="HBoxContainer" parent="Content"]
+margin_top = 30.0
+margin_right = 964.0
+margin_bottom = 550.0
+size_flags_vertical = 3
+custom_constants/separation = 15
+
+[node name="GamesColumn" type="VBoxContainer" parent="Content/Columns"]
+margin_right = 311.0
+margin_bottom = 520.0
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="Content/Columns/GamesColumn"]
+margin_right = 311.0
+margin_bottom = 14.0
+text = "All Games"
+align = 1
+
+[node name="AllGames" type="TextEdit" parent="Content/Columns/GamesColumn"]
+margin_top = 18.0
+margin_right = 311.0
+margin_bottom = 520.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+readonly = true
+smooth_scrolling = true
+script = ExtResource( 1 )
+
+[node name="NoBadgeColumn" type="VBoxContainer" parent="Content/Columns"]
+margin_left = 326.0
+margin_right = 637.0
+margin_bottom = 520.0
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="Content/Columns/NoBadgeColumn"]
+margin_right = 311.0
+margin_bottom = 14.0
+text = "Games Without Badges"
+align = 1
+
+[node name="BadgelessGames" type="TextEdit" parent="Content/Columns/NoBadgeColumn"]
+margin_top = 18.0
+margin_right = 311.0
+margin_bottom = 520.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+readonly = true
+smooth_scrolling = true
+script = ExtResource( 1 )
+
+[node name="BadgeColumn" type="VBoxContainer" parent="Content/Columns"]
+margin_left = 652.0
+margin_right = 964.0
+margin_bottom = 520.0
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="Content/Columns/BadgeColumn"]
+margin_right = 312.0
+margin_bottom = 14.0
+text = "Games With Badges"
+align = 1
+
+[node name="BadgeGames" type="TextEdit" parent="Content/Columns/BadgeColumn"]
+margin_top = 18.0
+margin_right = 312.0
+margin_bottom = 520.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+readonly = true
+smooth_scrolling = true
+script = ExtResource( 1 )
+[connection signal="pressed" from="Content/Buttons/UpdateAll" to="." method="_on_UpdateAll_pressed"]
+[connection signal="pressed" from="Content/Buttons/RefreshLists" to="." method="_on_RefreshLists_pressed"]

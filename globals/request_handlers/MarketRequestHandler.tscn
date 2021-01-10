@@ -1,0 +1,16 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://globals/request_handlers/RequestHandler.tscn" type="PackedScene" id=1]
+[ext_resource path="res://globals/request_handlers/MarketRequestHandler.gd" type="Script" id=2]
+
+[node name="MarketRequestHandler" instance=ExtResource( 1 )]
+script = ExtResource( 2 )
+max_simultaneous_requests = 26
+
+[node name="Timer" parent="." index="0"]
+wait_time = 3.0
+
+[node name="429Timer" type="Timer" parent="." index="1"]
+wait_time = 305.0
+one_shot = true
+[connection signal="timeout" from="429Timer" to="." method="_on_429Timer_timeout"]

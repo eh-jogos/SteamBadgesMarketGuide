@@ -1,0 +1,73 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://main_app/tab_scenes/market_guide/BadgeGuide.gd" type="Script" id=1]
+
+[node name="BadgeGuide" type="VBoxContainer"]
+margin_right = 964.0
+margin_bottom = 74.0
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="LevelTitle" type="Label" parent="."]
+margin_right = 964.0
+margin_bottom = 14.0
+text = "%s - %s"
+
+[node name="Prices" type="Label" parent="."]
+margin_top = 18.0
+margin_right = 964.0
+margin_bottom = 32.0
+text = "%s - %s"
+
+[node name="Cards" type="Label" parent="."]
+margin_top = 36.0
+margin_right = 964.0
+margin_bottom = 50.0
+text = "%s - %s"
+
+[node name="Buttons" type="HBoxContainer" parent="."]
+margin_top = 54.0
+margin_right = 964.0
+margin_bottom = 74.0
+custom_constants/separation = 15
+
+[node name="Badge" type="Button" parent="Buttons"]
+margin_right = 180.0
+margin_bottom = 20.0
+size_flags_horizontal = 3
+text = "Badge Page"
+
+[node name="Market" type="Button" parent="Buttons"]
+margin_left = 195.0
+margin_right = 376.0
+margin_bottom = 20.0
+size_flags_horizontal = 3
+text = "Market"
+
+[node name="Booster" type="Button" parent="Buttons"]
+margin_left = 391.0
+margin_right = 572.0
+margin_bottom = 20.0
+size_flags_horizontal = 3
+text = "Booster"
+
+[node name="UpdateBadge" type="Button" parent="Buttons"]
+margin_left = 587.0
+margin_right = 768.0
+margin_bottom = 20.0
+size_flags_horizontal = 3
+text = "Update Badge Data"
+
+[node name="UpdatePrices" type="Button" parent="Buttons"]
+margin_left = 783.0
+margin_right = 964.0
+margin_bottom = 20.0
+size_flags_horizontal = 3
+text = "Update Prices"
+[connection signal="pressed" from="Buttons/Badge" to="." method="_on_Badge_pressed"]
+[connection signal="pressed" from="Buttons/Market" to="." method="_on_Market_pressed"]
+[connection signal="pressed" from="Buttons/Booster" to="." method="_on_Booster_pressed"]
+[connection signal="pressed" from="Buttons/UpdateBadge" to="." method="_on_UpdateBadge_pressed"]
+[connection signal="pressed" from="Buttons/UpdatePrices" to="." method="_on_UpdatePrices_pressed"]

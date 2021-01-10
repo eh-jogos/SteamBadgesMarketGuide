@@ -1,0 +1,101 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=4
+
+_global_script_classes=[ {
+"base": "HTTPRequest",
+"class": "BadgeRequest",
+"language": "GDScript",
+"path": "res://globals/requests/BadgeRequest.gd"
+}, {
+"base": "HTTPRequest",
+"class": "CardMarketPageRequest",
+"language": "GDScript",
+"path": "res://globals/requests/CardMarketPageRequest.gd"
+}, {
+"base": "HTTPRequest",
+"class": "CardPriceRequest",
+"language": "GDScript",
+"path": "res://globals/requests/CardPriceRequest.gd"
+}, {
+"base": "Reference",
+"class": "CustomSorter",
+"language": "GDScript",
+"path": "res://globals/CustomSorter.gd"
+}, {
+"base": "HTTPRequest",
+"class": "GameDetailsRequest",
+"language": "GDScript",
+"path": "res://globals/requests/GameDetailsRequest.gd"
+}, {
+"base": "HTTPRequest",
+"class": "GamesListRequest",
+"language": "GDScript",
+"path": "res://globals/requests/GamesListRequest.gd"
+}, {
+"base": "Resource",
+"class": "SteamBadgeData",
+"language": "GDScript",
+"path": "res://custom_resources/SteamBadgeData.gd"
+}, {
+"base": "Resource",
+"class": "SteamBoosterPack",
+"language": "GDScript",
+"path": "res://custom_resources/SteamBoosterPack.gd"
+}, {
+"base": "Resource",
+"class": "SteamCardData",
+"language": "GDScript",
+"path": "res://custom_resources/SteamCardData.gd"
+}, {
+"base": "Resource",
+"class": "SteamGameData",
+"language": "GDScript",
+"path": "res://custom_resources/SteamGameData.gd"
+}, {
+"base": "HTTPRequest",
+"class": "UpdateBadgeRequest",
+"language": "GDScript",
+"path": "res://globals/requests/UpdateBadgeRequest.gd"
+}, {
+"base": "Resource",
+"class": "UserData",
+"language": "GDScript",
+"path": "res://custom_resources/UserData.gd"
+} ]
+_global_script_class_icons={
+"BadgeRequest": "",
+"CardMarketPageRequest": "",
+"CardPriceRequest": "",
+"CustomSorter": "",
+"GameDetailsRequest": "",
+"GamesListRequest": "",
+"SteamBadgeData": "",
+"SteamBoosterPack": "",
+"SteamCardData": "",
+"SteamGameData": "",
+"UpdateBadgeRequest": "",
+"UserData": ""
+}
+
+[application]
+
+config/name="Steam Badges Market Guide"
+run/main_scene="res://main_app/MainScene.tscn"
+config/icon="res://icon.png"
+
+[autoload]
+
+RequestHandler="*res://globals/request_handlers/RequestHandler.tscn"
+MarketRequestHandler="*res://globals/request_handlers/MarketRequestHandler.tscn"
+Database="*res://globals/Database.tscn"
+
+[rendering]
+
+environment/default_environment="res://default_env.tres"
