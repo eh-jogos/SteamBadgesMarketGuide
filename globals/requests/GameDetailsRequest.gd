@@ -13,7 +13,6 @@ signal game_details_request_failed
 #--- constants ------------------------------------------------------------------------------------
 
 const URL = "https://store.steampowered.com/app/%s/"
-const URL_STEAMDB = "https://steamdb.info/app/%s/info/"
 const URL_REVIEW = "https://steamcommunity.com/id/%s/recommended/%s/"
 
 #--- public variables - order: export > normal var > onready --------------------------------------
@@ -22,7 +21,9 @@ var requested_game: SteamGameData = null
 
 var has_cards_exceptions: = {
 	"ONE PIECE PIRATE WARRIORS 3": true,
-	"Ori and the Will of the Wisps": true
+	"Ori and the Will of the Wisps": true,
+	"Brothers - A Tale of Two Sons": true,
+	"Kind Words": true,
 }
 
 #--- private variables - order: export > normal var > onready -------------------------------------
@@ -49,15 +50,6 @@ func request_game_store_page() -> void:
 		return
 	
 	var error = request(URL%[requested_game.app_id])
-	if  error != OK:
-		push_warning("Something went wrong with GameDetailsRequest | Error: %s"%[error])
-		emit_signal("game_details_request_failed")
-		queue_free()
-		assert(false)
-
-
-func request_steamdb_info_page() -> void:
-	var error = request(URL_STEAMDB%[requested_game.app_id])
 	if  error != OK:
 		push_warning("Something went wrong with GameDetailsRequest | Error: %s"%[error])
 		emit_signal("game_details_request_failed")
@@ -116,9 +108,7 @@ func _on_request_completed(
 		_handle_game_store_page_scrubbing(html_raw)
 	elif _is_age_gate(html_raw):
 		disconnect("request_completed", self, "_on_request_completed")
-		# warning-ignore:return_value_discarded
-		connect("request_completed", self, "_on_steamdb_request_completed")
-		request_steamdb_info_page()
+		push_warning("Could not get data for %s"%[requested_game])
 	elif _is_main_store_page(html_raw):
 		# warning-ignore:return_value_discarded
 		Database.erase_game(requested_game)
@@ -174,66 +164,6 @@ func _get_is_free_status(html_raw: String) -> bool:
 	return is_free
 
 ###### End of Steam Page Handling -----------------------------------------------------------------
-
-
-###### SteamDB Page Handling ----------------------------------------------------------------------
-
-func _on_steamdb_request_completed(
-			result: int, 
-			response_code: int, 
-			headers: PoolStringArray, 
-			body: PoolByteArray
-	) -> void:
-	if result != OK and response_code != 200:
-		_handle_request_failure(result, response_code, headers, body)
-		return
-	
-	var html_raw: String = body.get_string_from_utf8()
-	
-	if _is_steamdb_info_page(html_raw):
-		_handle_steamdb_page_scrubbing(html_raw)
-	elif _is_steamdb_error_page(html_raw):
-		push_error("Game unavailable or unknown | %s "%[requested_game])
-		queue_free()
-		assert(false)
-	else:
-		push_error("Unexpected page returned | html_raw: %s"%[html_raw])
-		emit_signal("game_details_request_failed")
-		queue_free()
-		assert(false)
-
-
-func _is_steamdb_info_page(html_raw: String) -> bool:
-	var is_steamdb_info: = \
-			html_raw.find(
-				'data-appid=\"%s\"'
-				%[requested_game.app_id]
-			) != -1
-	
-	return is_steamdb_info
-
-
-func _is_steamdb_error_page(html_raw: String) -> bool:
-	var is_error_page: = html_raw.find('The page you requested was not found.') != -1
-	return is_error_page
-
-
-func _handle_steamdb_page_scrubbing(html_raw: String) -> void:
-	requested_game.is_dlc = html_raw.find('<td class=\"span3\">parent<\/td>') != -1
-	
-	if not requested_game.is_dlc:
-		requested_game.has_cards = html_raw.find('id=\"tab-communityitems\"') != -1
-	
-	requested_game.is_free_game = \
-			html_raw.find('<td class=\"span3\">IsFreeApp<\/td>\n<td>Yes<\/td>') != -1
-	
-	disconnect("request_completed", self, "_on_steamdb_request_completed")
-	# warning-ignore:return_value_discarded
-	connect("request_completed", self, "_on_review_request_completed")
-	request_review_page()
-
-###### End of SteamDB Page Handling ---------------------------------------------------------------
-
 
 ###### Steam Review Page Handling -----------------------------------------------------------------
 

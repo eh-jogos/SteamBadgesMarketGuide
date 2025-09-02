@@ -22,6 +22,7 @@ onready var _resources: ResourcePreloader = $ResourcePreloader
 onready var _list: VBoxContainer = $Content/Scroll/List
 onready var _button_update_all_badges: Button = $Content/Buttons/UpdateBadges
 onready var _button_update_all_prices: Button = $Content/Buttons/UpdatePrices
+onready var _button_check_for_new_badges: Button = $Content/Buttons/CheckNew
 
 ### -----------------------------------------------------------------------------------------------
 
@@ -30,6 +31,9 @@ onready var _button_update_all_prices: Button = $Content/Buttons/UpdatePrices
 
 func _ready():
 	_populate_badges_buy_guide()
+	if not Database.is_connected("game_details_acquired", self, 
+			"_on_Database_game_details_acquired"):
+		Database.connect("game_details_acquired", self, "_on_Database_game_details_acquired")
 
 ### -----------------------------------------------------------------------------------------------
 
@@ -83,6 +87,23 @@ func _on_badge_updated() -> void:
 	_populate_badges_buy_guide()
 
 
+func _on_Database_game_details_acquired(_game) -> void:
+	if _button_check_for_new_badges.disabled:
+		_pending_badge_update_count += 1
+		if _pending_badge_update_count >= _pending_badge_update_total:
+			_button_check_for_new_badges.disabled = false
+			_button_check_for_new_badges.text = "Check for new badges"
+			_pending_badge_update_count = 0
+			_pending_badge_update_total = 0
+		else:
+			_button_check_for_new_badges.text = "Updating Games (%03d/%03d)"%[
+					_pending_badge_update_count,
+					_pending_badge_update_total
+			]
+	
+	_populate_badges_buy_guide()
+
+
 func _on_item_price_updated() -> void:
 	if _button_update_all_prices.disabled:
 		_pending_incomplete_count += 1
@@ -91,13 +112,12 @@ func _on_item_price_updated() -> void:
 			_button_update_all_prices.text = "Update All Badges Data"
 			_pending_incomplete_count = 0
 			_pending_incomplete_total = 0
+			_populate_badges_buy_guide()
 		else:
-			_button_update_all_badges.text = "Updating Incomplete Prices (%03d/%03d)"%[
+			_button_update_all_prices.text = "Updating Incomplete Prices (%03d/%03d)"%[
 					_pending_incomplete_count,
 					_pending_incomplete_total
 			]
-	
-	_populate_badges_buy_guide()
 
 ### -----------------------------------------------------------------------------------------------
 
@@ -113,7 +133,8 @@ func _on_UpdateBadges_pressed():
 			_pending_badge_update_count,
 			_pending_badge_update_total
 	]
-	
+
+
 func _on_UpdatePrices_pressed():
 	_button_update_all_prices.disabled = true
 	
@@ -129,7 +150,18 @@ func _on_UpdatePrices_pressed():
 			badge.booster_pack.update_price()
 			_pending_incomplete_total += 1
 	
-	_button_update_all_badges.text = "Updating Incomplete Prices (%03d/%03d)"%[
+	_button_update_all_prices.text = "Updating Incomplete Prices (%03d/%03d)"%[
 			_pending_incomplete_count,
 			_pending_incomplete_total
+	]
+
+
+func _on_CheckNew_pressed():
+	_button_check_for_new_badges.disabled = true
+	_pending_badge_update_total = Database.initialize_non_badge_game_details()
+	
+	_pending_badge_update_total = Database.badges.size()
+	_button_check_for_new_badges.text = "Updating Games (%03d/%03d)"%[
+			_pending_badge_update_count,
+			_pending_badge_update_total
 	]

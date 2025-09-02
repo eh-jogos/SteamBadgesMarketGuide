@@ -114,6 +114,5 @@ func _on_request_completed(
 		emit_signal("card_nameid_failed", false)
 		queue_free()
 #		assert(false)
-	
 
 ### -----------------------------------------------------------------------------------------------

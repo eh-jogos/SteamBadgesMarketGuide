@@ -76,8 +76,12 @@ func _on_request_completed(
 	var json_dict = parse_json(body.get_string_from_utf8())
 	
 	if json_dict is Dictionary and json_dict.has("sell_order_graph"):
-		var price = json_dict["sell_order_graph"][0][0]
-		emit_signal("card_price_acquired", price)
+		if json_dict["lowest_sell_order"] == null:
+			push_warning("No price listings for %s - %s"%[item_nameid, item_name])
+		else:
+			var price = float(json_dict["lowest_sell_order"])/100.0
+			emit_signal("card_price_acquired", price)
+		
 		queue_free()
 	else:
 		if json_dict.has("success") and json_dict["success"] != 16:

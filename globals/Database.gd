@@ -71,28 +71,31 @@ func request_game_details() -> void:
 	var game_details_requests: = []
 	for game in games.values():
 		if game.has_gotten_details:
+			yield(get_tree(), "idle_frame")
 			emit_signal("game_details_acquired", game)
-			print("%s already has details"%[game.app_id])
+#			print("%s already has details"%[game.app_id])
 			if _should_request_badge(game):
 				request_badge(game)
 			elif game.has_cards:
 				emit_signal("badge_data_completed", badges[game.app_id])
 			continue
 		
-		var game_details_request: = GameDetailsRequest.new()
-		game_details_request.requested_game = game
+		var game_details_request: = _get_game_details_request(game)
 		game_details_requests.append(game_details_request)
-		# warning-ignore:return_value_discarded
-		game_details_request.connect(
-				"game_details_request_failed", 
-				self, 
-				"_game_details_request_failed", 
-				[game_details_request]
-		)
-		# warning-ignore:return_value_discarded
-		game_details_request.connect("game_details_success", self, "_on_game_details_success")
 	
 	RequestHandler.add_requests(game_details_requests)
+
+
+func initialize_non_badge_game_details() -> int:
+	var game_details_requests: = []
+	for key in games:
+		var game: SteamGameData = games[key]
+		if not game.has_cards:
+			var game_details_request: = _get_game_details_request(game)
+			game_details_requests.append(game_details_request)
+	
+	RequestHandler.add_requests(game_details_requests)
+	return game_details_requests.size()
 
 
 func request_badge(game: SteamGameData) -> void:
@@ -152,6 +155,23 @@ func _load_saved_gamedata() -> void:
 		element = dir.get_next()
 
 
+func _get_game_details_request(game: SteamGameData) -> GameDetailsRequest:
+	var game_details_request: = GameDetailsRequest.new()
+	game_details_request.requested_game = game
+	
+	# warning-ignore:return_value_discarded
+	game_details_request.connect(
+			"game_details_request_failed", 
+			self, 
+			"_game_details_request_failed", 
+			[game_details_request]
+	)
+	# warning-ignore:return_value_discarded
+	game_details_request.connect("game_details_success", self, "_on_game_details_success")
+	
+	return game_details_request
+
+
 func _on_games_list_failed() -> void:
 	print("RETRY | GamesListRequest")
 	request_games()
@@ -160,7 +180,7 @@ func _on_games_list_failed() -> void:
 func _on_games_list_parsed(games_list: Array) -> void:
 	for game in games_list:
 		if games.has(int(game.appid)):
-			print("already has %s | skipping"%[game.appid])
+#			print("already has %s | skipping"%[game.appid])
 			continue
 		
 		var game_data: = SteamGameData.new()
@@ -170,7 +190,7 @@ func _on_games_list_parsed(games_list: Array) -> void:
 	
 	emit_signal("game_list_parsed")
 	
-	request_game_details()
+#	request_game_details()
 
 
 func _on_badge_resquest_failed(request: BadgeRequest) -> void:

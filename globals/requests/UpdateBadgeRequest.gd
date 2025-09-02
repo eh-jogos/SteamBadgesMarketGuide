@@ -76,6 +76,7 @@ func _on_request_completed(
 		return
 	
 	var html_raw: String = body.get_string_from_utf8()
+	html_raw = html_raw.replace("\t", "")
 	
 	if _is_gamecards_page(html_raw):
 		_handle_gamecards_page_scrubbing(html_raw)
@@ -107,7 +108,8 @@ func _handle_gamecards_page_scrubbing(html_raw: String) -> void:
 	for index in badge_data.cards.size():
 		var card: SteamCardData = badge_data.cards[index]
 		var sanitized_title = card.title.replace(" (Trading Card)", "")
-		var title_begin = html_raw.find(sanitized_title, previous_title_end)
+		var search_term = '%s<div style=\"clear: right\"></div>'%[sanitized_title]
+		var title_begin = html_raw.find(search_term, previous_title_end)
 		
 		if title_begin != -1:
 			var sample_offset = 100
