@@ -6,6 +6,7 @@ extends Node
 
 signal game_list_parsed
 signal game_details_acquired(game)
+signal game_details_age_gated
 signal game_removed_from_list
 signal badge_data_completed(badge)
 
@@ -55,14 +56,20 @@ func is_profile_configured() -> bool:
 	return value
 
 
-func request_games() -> void:
-	var games_list: = GamesListRequest.new()
-	# warning-ignore:return_value_discarded
-	games_list.connect("games_list_failed", self, "_on_games_list_failed")
-	# warning-ignore:return_value_discarded
-	games_list.connect("games_list_parsed", self, "_on_games_list_parsed")
+func parse_games_list(games_list: Array) -> void:
+	for game in games_list:
+		if games.has(int(game.appid)):
+#			print("already has %s | skipping"%[game.appid])
+			continue
+		
+		var game_data: = SteamGameData.new()
+		game_data.init_from_steam_dict(game)
+		games[game_data.app_id] = game_data
+		game_data.save()
 	
-	RequestHandler.add_requests([games_list])
+	emit_signal("game_list_parsed")
+	
+#	request_game_details()
 
 
 func erase_game(game: SteamGameData) -> void:
@@ -81,11 +88,6 @@ func request_game_details() -> void:
 		if game.has_gotten_details:
 			yield(get_tree(), "idle_frame")
 			emit_signal("game_details_acquired", game)
-#			print("%s already has details"%[game.app_id])
-			if _should_request_badge(game):
-				request_badge(game)
-			elif game.has_cards:
-				emit_signal("badge_data_completed", badges[game.app_id])
 			continue
 		
 		var game_details_request: = _get_game_details_request(game)
@@ -109,7 +111,7 @@ func initialize_non_badge_game_details() -> int:
 func request_badge(game: SteamGameData) -> void:
 	var badge_request: = BadgeRequest.new()
 	# warning-ignore:return_value_discarded
-	badge_request.connect("badge_request_failed", self, "_on_badge_resquest_failed", [badge_request])
+	badge_request.connect("badge_request_failed", self, "_on_badge_request_failed", [game])
 	# warning-ignore:return_value_discarded
 	badge_request.connect("badge_found", self, "_on_badge_found")
 	badge_request.requested_app_id = game.app_id
@@ -176,34 +178,14 @@ func _get_game_details_request(game: SteamGameData) -> GameDetailsRequest:
 	)
 	# warning-ignore:return_value_discarded
 	game_details_request.connect("game_details_success", self, "_on_game_details_success")
+	game_details_request.connect("game_details_age_gated", self, "_on_game_details_age_gated")
 	
 	return game_details_request
 
 
-func _on_games_list_failed() -> void:
-	print("RETRY | GamesListRequest")
-	request_games()
-
-
-func _on_games_list_parsed(games_list: Array) -> void:
-	for game in games_list:
-		if games.has(int(game.appid)):
-#			print("already has %s | skipping"%[game.appid])
-			continue
-		
-		var game_data: = SteamGameData.new()
-		game_data.init_from_steam_dict(game)
-		games[game_data.app_id] = game_data
-		game_data.save()
-	
-	emit_signal("game_list_parsed")
-	
-#	request_game_details()
-
-
-func _on_badge_resquest_failed(request: BadgeRequest) -> void:
-	print("RETRY | BadgeRequest | %s"%[request.requested_app_id])
-	RequestHandler.add_requests([request])
+func _on_badge_request_failed(game: SteamGameData) -> void:
+	print("RETRY | BadgeRequest | %s"%[game.app_id])
+	request_badge(game)
 
 
 func _on_badge_found(badge_data: SteamBadgeData) -> void:
@@ -219,7 +201,7 @@ func _should_request_badge(game: SteamGameData) -> bool:
 
 func _on_game_details_request_failed(request: GameDetailsRequest) -> void:
 	print("RETRY | GameDetailsRequest | %s"%[request.requested_game])
-	RequestHandler.add_requests([request])
+#	RequestHandler.add_requests([request])
 
 
 func _on_game_details_success(game: SteamGameData) -> void:
@@ -228,7 +210,11 @@ func _on_game_details_success(game: SteamGameData) -> void:
 	
 	emit_signal("game_details_acquired", game)
 	
-	if _should_request_badge(game):
-		request_badge(game)
+#	if _should_request_badge(game):
+#		request_badge(game)
+
+
+func _on_game_details_age_gated() -> void:
+	emit_signal("game_details_age_gated")
 
 ### -----------------------------------------------------------------------------------------------

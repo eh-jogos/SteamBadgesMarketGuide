@@ -1,6 +1,7 @@
-[gd_scene load_steps=5 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://main_app/tab_scenes/config/ProfileSetupBlock.gd" type="Script" id=1]
+[ext_resource path="res://main_app/tab_scenes/config/Progress.gd" type="Script" id=2]
 
 [sub_resource type="Animation" id=1]
 length = 0.001
@@ -136,7 +137,7 @@ align = 1
 [node name="IDBlock" type="VBoxContainer" parent="."]
 margin_top = 24.0
 margin_right = 964.0
-margin_bottom = 66.0
+margin_bottom = 48.0
 
 [node name="IdLine" type="HBoxContainer" parent="IDBlock"]
 margin_right = 964.0
@@ -185,14 +186,14 @@ anims/success = SubResource( 2 )
 
 [node name="SourceBlock" type="VBoxContainer" parent="."]
 visible = false
-margin_top = 76.0
+margin_top = 58.0
 margin_right = 964.0
-margin_bottom = 218.0
+margin_bottom = 235.0
 
 [node name="Label" type="Label" parent="SourceBlock"]
 margin_right = 964.0
 margin_bottom = 14.0
-text = "Steam Profile Source Code:"
+text = "Paste the source code of  your Steam Profile here:"
 
 [node name="SourceBox" type="TextEdit" parent="SourceBlock"]
 margin_top = 18.0
@@ -204,10 +205,21 @@ show_line_numbers = true
 draw_tabs = true
 draw_spaces = true
 
-[node name="Button" type="Button" parent="SourceBlock"]
+[node name="ConfirmSource" type="Button" parent="SourceBlock"]
 margin_top = 122.0
 margin_right = 964.0
 margin_bottom = 142.0
 text = "Confirm"
 
+[node name="InitializeProgress" type="Label" parent="SourceBlock"]
+margin_top = 146.0
+margin_right = 964.0
+margin_bottom = 177.0
+custom_colors/font_color = Color( 0.592157, 1, 0, 1 )
+text = "Scrubbing Games Data (%03d/%03d | %03d Age Gated)
+Scrubbing Badge Data (%03d/%03d)"
+align = 1
+script = ExtResource( 2 )
+
 [connection signal="pressed" from="IDBlock/IdLine/ConfirmId" to="." method="_on_ConfirmId_pressed"]
+[connection signal="pressed" from="SourceBlock/ConfirmSource" to="." method="_on_ConfirmSource_pressed"]

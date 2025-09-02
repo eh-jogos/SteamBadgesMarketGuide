@@ -59,8 +59,6 @@ func _show_list(list: Array) -> void:
 	list.sort_custom(CustomSorter, "sort_game_by_name")
 	for index in list.size():
 		var game: SteamGameData = list[index]
-		if game.is_dlc:
-			continue
 		
 		text += game.title
 		

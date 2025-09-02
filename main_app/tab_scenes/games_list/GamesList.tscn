@@ -13,9 +13,6 @@ custom_constants/margin_top = 20
 custom_constants/margin_left = 30
 custom_constants/margin_bottom = 30
 script = ExtResource( 2 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
 [node name="Content" type="VBoxContainer" parent="."]
 margin_left = 30.0
@@ -113,5 +110,6 @@ size_flags_vertical = 3
 readonly = true
 smooth_scrolling = true
 script = ExtResource( 1 )
+
 [connection signal="pressed" from="Content/Buttons/UpdateAll" to="." method="_on_UpdateAll_pressed"]
 [connection signal="pressed" from="Content/Buttons/RefreshLists" to="." method="_on_RefreshLists_pressed"]

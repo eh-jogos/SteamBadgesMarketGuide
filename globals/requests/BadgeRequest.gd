@@ -81,6 +81,10 @@ func _on_request_completed(
 		_handle_gamecards_page_scrubbing(html_raw)
 	elif _is_badges_list_page(html_raw):
 		queue_free()
+	elif html_raw.find("Failed loading profile data, please try again later.") != -1:
+		push_error("too much traffic??")
+		assert(false)
+		queue_free()
 	else:
 		push_error("Unexpected page returned | html_raw: %s"%[html_raw])
 		emit_signal("badge_request_failed")

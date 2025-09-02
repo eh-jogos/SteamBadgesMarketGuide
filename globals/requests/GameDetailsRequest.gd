@@ -7,16 +7,30 @@ extends HTTPRequest
 
 signal game_details_success(requested_game)
 signal game_details_request_failed
+signal game_details_age_gated
 
 #--- enums ----------------------------------------------------------------------------------------
+
+enum Status {
+	NONE,
+	STORE_PAGE_REQUESTED,
+	GAME_DETAILS_SUCESS,
+	GAME_DETAILS_AGE_GATED,
+	GAME_DETAILS_FAILED,
+	REVIEW_REQUESTED,
+	REVIEW_SUCESS,
+	REVIEW_FAILED
+}
 
 #--- constants ------------------------------------------------------------------------------------
 
 const URL = "https://store.steampowered.com/app/%s/"
-const URL_REVIEW = "https://steamcommunity.com/id/%s/recommended/%s/"
+#TODO - Separate Reviews into it's own requests
+#const URL_REVIEW = "https://steamcommunity.com/id/%s/recommended/%s/"
 
 #--- public variables - order: export > normal var > onready --------------------------------------
 
+export(Status) var current_status: int = Status.NONE
 var requested_game: SteamGameData = null
 
 var has_cards_exceptions: = {
@@ -55,15 +69,20 @@ func request_game_store_page() -> void:
 		emit_signal("game_details_request_failed")
 		queue_free()
 		assert(false)
+	else:
+		current_status = Status.STORE_PAGE_REQUESTED
 
 
-func request_review_page() -> void:
-	var error = request(URL_REVIEW%[Database.get_custom_url() ,requested_game.app_id])
-	if  error != OK:
-		push_warning("Something went wrong with GameDetailsRequest | Error: %s"%[error])
-		emit_signal("game_details_request_failed")
-		queue_free()
-		assert(false)
+#func request_review_page() -> void:
+#	var error = request(URL_REVIEW%[Database.get_custom_url() ,requested_game.app_id])
+#	if  error != OK:
+#		push_warning("Something went wrong with GameDetailsRequest | Error: %s"%[error])
+#		emit_signal("game_details_request_failed")
+#		queue_free()
+#		assert(false)
+#	else:
+#		current_status = Status.REVIEW_REQUESTED
+	
 
 ### -----------------------------------------------------------------------------------------------
 
@@ -99,6 +118,7 @@ func _on_request_completed(
 			body: PoolByteArray
 	) -> void:
 	if result != OK and response_code != 200:
+		current_status = Status.GAME_DETAILS_FAILED
 		_handle_request_failure(result, response_code, headers, body)
 		return
 	
@@ -106,15 +126,24 @@ func _on_request_completed(
 	
 	if _is_game_store_page(html_raw):
 		_handle_game_store_page_scrubbing(html_raw)
+		emit_signal("game_details_success", requested_game)
+		queue_free()
 	elif _is_age_gate(html_raw):
 		disconnect("request_completed", self, "_on_request_completed")
 		push_warning("Could not get data for %s"%[requested_game])
+		current_status = Status.GAME_DETAILS_AGE_GATED
+		requested_game.is_age_gated = true
+		requested_game.save()
+		emit_signal("game_details_age_gated")
+		queue_free()
 	elif _is_main_store_page(html_raw):
 		# warning-ignore:return_value_discarded
 		Database.erase_game(requested_game)
+		current_status = Status.GAME_DETAILS_FAILED
 		queue_free()
 	else:
 		push_error("Unexpected page returned | html_raw: %s"%[html_raw])
+		current_status = Status.GAME_DETAILS_FAILED
 		emit_signal("game_details_request_failed")
 		queue_free()
 		assert(false)
@@ -136,30 +165,22 @@ func _is_age_gate(html_raw: String) -> bool:
 
 
 func _handle_game_store_page_scrubbing(html_raw: String) -> void:
-	requested_game.is_dlc = html_raw.find('<h1>Downloadable Content<\/h1>') != -1
-	
-	if not requested_game.is_dlc:
-		if has_cards_exceptions.has(requested_game.title):
-			requested_game.has_cards = has_cards_exceptions[requested_game.title]
-		else:
-			requested_game.has_cards = html_raw.find('>Steam Trading Cards<') != -1
+	if has_cards_exceptions.has(requested_game.title):
+		requested_game.has_cards = has_cards_exceptions[requested_game.title]
+	else:
+		requested_game.has_cards = html_raw.find('>Steam Trading Cards<') != -1
 	
 	requested_game.is_free_game = _get_is_free_status(html_raw)
 	
 	disconnect("request_completed", self, "_on_request_completed")
 	# warning-ignore:return_value_discarded
-	connect("request_completed", self, "_on_review_request_completed")
-	request_review_page()
+	current_status = Status.GAME_DETAILS_SUCESS
 
 
 func _get_is_free_status(html_raw: String) -> bool:
-	var is_free = false
-	
-	var free_game_start = html_raw.find('<div class=\"btn_addtocart\">')
-	if free_game_start != -1:
-		var free_game_end = html_raw.find('<\/div', free_game_start)
-		var free_game_string = html_raw.substr(free_game_start, free_game_end - free_game_start)
-		is_free = free_game_string.find("Play") != -1
+#	if requested_game.title == "The Murder of Sonic the Hedgehog" or requested_game.title == "Blender":
+#		breakpoint
+	var is_free = html_raw.find('id=\"freeGameBtn\"') != -1
 	
 	return is_free
 
@@ -173,32 +194,35 @@ func _on_review_request_completed(result: int,
 			body: PoolByteArray
 	) -> void:
 	if result != OK and response_code != 200:
+		current_status = Status.REVIEW_FAILED
 		_handle_request_failure(result, response_code, headers, body)
 		return
 	
 	var html_raw: String = body.get_string_from_utf8()
 	
 	if _is_game_review_page(html_raw):
+		current_status = Status.REVIEW_SUCESS
 		requested_game.has_reviewed = true
 		emit_signal("game_details_success", requested_game)
 		queue_free()
 	elif _is_reviews_list_page(html_raw):
+		current_status = Status.REVIEW_SUCESS
 		requested_game.has_reviewed = false
 		emit_signal("game_details_success", requested_game)
 		queue_free()
 	else:
-		request_review_page()
-		
+		current_status = Status.REVIEW_FAILED
 		if not _is_known_review_error(html_raw):
 			push_error("Unexpected page returned | html_raw: %s"%[html_raw])
 			assert(false)
+		queue_free()
 
 
 func _is_known_review_error(html_raw: String) -> bool:
 	var profile_error = html_raw.find("The specified profile could not be found.") == -1
 	var request_error = html_raw\
 			.find("We were unable to service your request. Please try again later.") != -1
-	
+	breakpoint
 	return profile_error or request_error
 
 

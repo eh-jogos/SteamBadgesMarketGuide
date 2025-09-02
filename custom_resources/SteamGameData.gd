@@ -1,21 +1,23 @@
 # Steam Game Object
-# Format of Received Data
-# {
-#	"appid":331870,
-#	"name":"AER Memories of Old",
-#	"logo":"https:\/\/cdn.cloudflare.steamstatic.com\/steam\/apps\/331870\/capsule_184x69.jpg",
-#	"friendlyURL":331870,
-#	"availStatLinks":{
-#		"achievements":true,
-#		"global_achievements":true,
-#		"stats":false,
-#		"gcpd":false,
-#		"leaderboards":false,
-#		"global_leaderboards":false
-#	},
-#	"hours_forever":"7.3",
-#	"last_played":1559501563
-# }
+# Format of Received Data, something more or less like
+#{
+#	"appid": 12900,
+#	"name": "Audiosurf",
+#	"playtime_forever": 224,
+#	"img_icon_url": "ae6d0ac6d1dd5b23b961d9f32ea5a6c8d0305cf4",
+#	"has_community_visible_stats": 1, # might not be included if gamne has no achievements or other stats
+#	"playtime_windows_forever": 0,
+#	"playtime_mac_forever": 0,
+#	"playtime_linux_forever": 0,
+#	"playtime_deck_forever": 0,
+#	"rtime_last_played": 1321862400,
+#	"capsule_filename": "library_600x900.jpg",
+#	"has_workshop": 0,
+#	"has_market": 0,
+#	"has_dlc": 1,
+#	"playtime_disconnected": 0
+#},
+
 
 class_name SteamGameData
 extends Resource
@@ -29,13 +31,15 @@ extends Resource
 
 const STORE_PAGE = "https://store.steampowered.com/app/%s"
 const SAVE_FOLDER = "user://game_data/%s/"
+const IMG_CDN = "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps"
+const HEADER_IMG = IMG_CDN + "/%s/header.jpg"
+const CAPSULE_IMG = IMG_CDN + "/%s/library_600x900.jpg"
 
 #--- public variables - order: export > normal var > onready --------------------------------------
 
 export var app_id: int = 0 setget _set_app_id
 export var title: String = ""
 export var is_free_game: bool = false
-export var is_dlc: bool = false
 export var has_cards: bool = false
 export var has_achievements: bool = false
 export var has_reviewed: bool = false
@@ -45,7 +49,7 @@ export var url_store: String = ""
 export var url_logo: String = ""
 export var logo: Texture = null setget , _get_logo
 export var has_gotten_details: bool = false
-
+export var is_age_gated := false
 
 #--- private variables - order: export > normal var > onready -------------------------------------
 
@@ -100,11 +104,11 @@ func save() -> void:
 func init_from_steam_dict(dict: Dictionary) -> void:
 	_set_app_id(dict.appid)
 	title = dict.name
-	url_logo = dict.logo.replace("\\","")
-	has_achievements = dict.availStatLinks.achievements
-	if dict.has("hours_forever"):
-		total_hours = float(dict.hours_forever)
-		last_played = dict.last_played
+	url_logo = HEADER_IMG%[app_id]
+	has_achievements = "has_community_visible_stats" in dict
+	if dict.has("playtime_forever"):
+		total_hours = float(dict.playtime_forever)
+		last_played = dict.rtime_last_played
 
 
 func get_last_played_timestamp() -> String:

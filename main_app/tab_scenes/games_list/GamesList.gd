@@ -84,7 +84,7 @@ func _on_UpdateAll_pressed():
 
 func _on_game_details_request_failed(request: GameDetailsRequest) -> void:
 	print("RETRY | GameDetailsRequest | %s"%[request.requested_game])
-	RequestHandler.add_requests([request])
+#	RequestHandler.add_requests([request])
 
 
 func _on_game_details_success(game: SteamGameData) -> void:
