@@ -39,6 +39,11 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://globals/requests/GamesListRequest.gd"
 }, {
+"base": "VBoxContainer",
+"class": "ProfileSetup",
+"language": "GDScript",
+"path": "res://main_app/tab_scenes/config/ProfileSetupBlock.gd"
+}, {
 "base": "Resource",
 "class": "SteamBadgeData",
 "language": "GDScript",
@@ -68,6 +73,11 @@ _global_script_classes=[ {
 "class": "UserData",
 "language": "GDScript",
 "path": "res://custom_resources/UserData.gd"
+}, {
+"base": "HTTPRequest",
+"class": "UserProfileRequest",
+"language": "GDScript",
+"path": "res://globals/requests/UserProfilePageRequest.gd"
 } ]
 _global_script_class_icons={
 "BadgeRequest": "",
@@ -76,12 +86,14 @@ _global_script_class_icons={
 "CustomSorter": "",
 "GameDetailsRequest": "",
 "GamesListRequest": "",
+"ProfileSetup": "",
 "SteamBadgeData": "",
 "SteamBoosterPack": "",
 "SteamCardData": "",
 "SteamGameData": "",
 "UpdateBadgeRequest": "",
-"UserData": ""
+"UserData": "",
+"UserProfileRequest": ""
 }
 
 [application]

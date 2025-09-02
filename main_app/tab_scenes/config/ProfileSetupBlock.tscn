@@ -1,0 +1,213 @@
+[gd_scene load_steps=5 format=2]
+
+[ext_resource path="res://main_app/tab_scenes/config/ProfileSetupBlock.gd" type="Script" id=1]
+
+[sub_resource type="Animation" id=1]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/path = NodePath("LabelInvalid:visible")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ false ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("LabelSuccess:visible")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ false ]
+}
+tracks/2/type = "value"
+tracks/2/path = NodePath("../SourceBlock:visible")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ false ]
+}
+
+[sub_resource type="Animation" id=3]
+resource_name = "failed"
+length = 0.001
+tracks/0/type = "value"
+tracks/0/path = NodePath("LabelInvalid:visible")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ true ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("LabelSuccess:visible")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ false ]
+}
+tracks/2/type = "value"
+tracks/2/path = NodePath("../SourceBlock:visible")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ false ]
+}
+
+[sub_resource type="Animation" id=2]
+resource_name = "success"
+length = 0.001
+tracks/0/type = "value"
+tracks/0/path = NodePath("LabelInvalid:visible")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ false ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("LabelSuccess:visible")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ true ]
+}
+tracks/2/type = "value"
+tracks/2/path = NodePath("../SourceBlock:visible")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ true ]
+}
+
+[node name="ProfileSetupBlock" type="VBoxContainer"]
+margin_right = 964.0
+margin_bottom = 154.0
+custom_constants/separation = 10
+script = ExtResource( 1 )
+
+[node name="WarningLabel" type="Label" parent="."]
+margin_right = 964.0
+margin_bottom = 14.0
+text = "For this app to work your profile, game details and inventory must be set to Public."
+align = 1
+
+[node name="IDBlock" type="VBoxContainer" parent="."]
+margin_top = 24.0
+margin_right = 964.0
+margin_bottom = 66.0
+
+[node name="IdLine" type="HBoxContainer" parent="IDBlock"]
+margin_right = 964.0
+margin_bottom = 24.0
+
+[node name="LabelID" type="Label" parent="IDBlock/IdLine"]
+margin_top = 5.0
+margin_right = 64.0
+margin_bottom = 19.0
+text = "Steam id: "
+
+[node name="LineEdit" type="LineEdit" parent="IDBlock/IdLine"]
+margin_left = 68.0
+margin_right = 898.0
+margin_bottom = 24.0
+size_flags_horizontal = 3
+
+[node name="ConfirmId" type="Button" parent="IDBlock/IdLine"]
+margin_left = 902.0
+margin_right = 964.0
+margin_bottom = 24.0
+text = "Confirm"
+
+[node name="LabelSuccess" type="Label" parent="IDBlock"]
+visible = false
+margin_top = 28.0
+margin_right = 964.0
+margin_bottom = 42.0
+custom_colors/font_color = Color( 0.592157, 1, 0, 1 )
+text = "Success! Could access profile!"
+align = 1
+
+[node name="LabelInvalid" type="Label" parent="IDBlock"]
+visible = false
+margin_top = 28.0
+margin_right = 964.0
+margin_bottom = 42.0
+custom_colors/font_color = Color( 1, 0, 0.31, 1 )
+text = "Failed! Wrong username or profile is not public."
+align = 1
+
+[node name="IDStatus" type="AnimationPlayer" parent="IDBlock"]
+anims/RESET = SubResource( 1 )
+anims/failed = SubResource( 3 )
+anims/success = SubResource( 2 )
+
+[node name="SourceBlock" type="VBoxContainer" parent="."]
+visible = false
+margin_top = 76.0
+margin_right = 964.0
+margin_bottom = 218.0
+
+[node name="Label" type="Label" parent="SourceBlock"]
+margin_right = 964.0
+margin_bottom = 14.0
+text = "Steam Profile Source Code:"
+
+[node name="SourceBox" type="TextEdit" parent="SourceBlock"]
+margin_top = 18.0
+margin_right = 964.0
+margin_bottom = 118.0
+rect_min_size = Vector2( 0, 100 )
+size_flags_horizontal = 3
+show_line_numbers = true
+draw_tabs = true
+draw_spaces = true
+
+[node name="Button" type="Button" parent="SourceBlock"]
+margin_top = 122.0
+margin_right = 964.0
+margin_bottom = 142.0
+text = "Confirm"
+
+[connection signal="pressed" from="IDBlock/IdLine/ConfirmId" to="." method="_on_ConfirmId_pressed"]

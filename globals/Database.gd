@@ -47,6 +47,14 @@ func get_custom_url() -> String:
 	return user_data.steam_custom_url
 
 
+func is_profile_configured() -> bool:
+	var value: bool = (
+			not get_custom_url().empty()
+			and not games.empty()
+	)
+	return value
+
+
 func request_games() -> void:
 	var games_list: = GamesListRequest.new()
 	# warning-ignore:return_value_discarded
